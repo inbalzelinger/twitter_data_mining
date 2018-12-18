@@ -7,7 +7,7 @@ from tweepy import Stream
 import Menu
 from stream_api import StreamApi
 from config_parser import Config_parser
-
+from elasticsearch_dsl import Search
 
 
 
@@ -29,17 +29,17 @@ def main():
     listener = StreamApi(es)
     stream = Stream(auth=auth, listener=listener, timeout=5)
     stream.filter(locations=location)
-    createQuery(quary_filters,index)
+    createAggregation(quary_filters,es)
 
 
 
-def createQuery(quary_filters,index):
+def createQuery(quary_filters, es):
     res = es.search(index='twitter_index', doc_type="twitter", body={"query": {"match": {"content": quary_filters[0]}}})
     print("%d documents found" % res['hits']['total'])
     for doc in res['hits']['hits']:
         print("%s) %s" % (doc['_id'], doc['_source']['content']))
 
-def createAggregation(field,index):
+def createAggregation(field,es):
     s = Search(using=es, index="twitter_index", doc_type="twitter")
     s.aggs.bucket('by_lang', 'terms', field=field)
     t = s.execute()
