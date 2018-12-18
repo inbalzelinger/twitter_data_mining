@@ -1,4 +1,9 @@
+# - *-coding: utf- 8 - *-
 import tweepy
+#from textblob import Textblob
+import textblob
+from langdetect import detect
+
 import sys
 
 from elasticsearch_dsl import A
@@ -43,6 +48,8 @@ stremer = tweepy.Stream(auth=auth, listener=Streamapi(), timeout=5)
 #query_filters=menu.query_filters(None)
 #stremer.filter(None,key_words)
 
+#stremer.filter(locations=[34.6323360532, 16.3478913436, 55.6666593769, 32.161008816])
+
 
 
 #res = es.search(index='twitter_index', doc_type="twitter", body={"query": {"match": {"user.location": 'usa'}}})
@@ -57,13 +64,22 @@ stremer = tweepy.Stream(auth=auth, listener=Streamapi(), timeout=5)
 #s.aggs.bucket('category_terms', a)
 
 s = Search(using=es, index="twitter_index", doc_type="twitter")
-s.aggs.bucket('by_location', 'terms', field='user.location')
+#s.aggs.bucket('by_location', 'terms', field='user.location')
+s.aggs.bucket('by_lang', 'terms', field='lang')
 t=s.execute()
 
-#print(t.aggregations.by_location.doc_count)
-#print(s.hits.total)
+"""
 print(t.aggregations.by_location.buckets)
-
 for item in t.aggregations.by_location.buckets:
     print(item.doc_count)
+"""
 
+print(t.aggregations.by_lang.buckets)
+for item in t.aggregations.by_lang.buckets:
+    print(item.doc_count)
+
+res = es.search(index='twitter_index', doc_type="twitter", body={"query": {"match": {"lang": 'und'}}})
+print("%d tweets found" % res['hits']['total'])
+
+for doc in res['hits']['hits']:
+   print(doc)
