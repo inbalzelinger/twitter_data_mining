@@ -9,7 +9,8 @@ class menu:
         return user_input
 
     def location(self):
-        user_input = input("enter location:\n")
+        user_input = input("chose tweets contry:\n"
+                           "")
         return user_input
 
     def aggregate_by (self):
