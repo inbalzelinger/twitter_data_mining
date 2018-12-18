@@ -9,7 +9,7 @@ class menu:
         return user_input
 
     def location(self):
-        user_input = input("aggregate by:\n")
+        user_input = input("enter location:\n")
         return user_input
 
     def aggregate_by (self):
