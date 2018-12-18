@@ -1,9 +1,4 @@
-# - *-coding: utf- 8 - *-
 import tweepy
-#from textblob import Textblob
-import textblob
-from langdetect import detect
-
 import sys
 
 from elasticsearch_dsl import A
@@ -16,7 +11,7 @@ from elasticsearch_dsl import Search
 from elasticsearch_dsl import aggs
 from Menu import menu
 
-config_parser = Config_parser(r'configuration.conf')
+config_parser = Config_parser(r'configuration\configuration.conf')
 consumer_key = config_parser.twitter_for_developers_config['API_key']
 consumer_secret = config_parser.twitter_for_developers_config['API_secret_key']
 access_token = config_parser.twitter_for_developers_config['Access_token']
@@ -24,6 +19,8 @@ access_token_secret = config_parser.twitter_for_developers_config['Access_token_
 auth = OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
+places = api.geo_search(query="USA", granularity="country")
+place_id = places[0].id
 
 
 es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
@@ -47,8 +44,6 @@ stremer = tweepy.Stream(auth=auth, listener=Streamapi(), timeout=5)
 #key_words = menu.key_words(None)
 #query_filters=menu.query_filters(None)
 #stremer.filter(None,key_words)
-
-#stremer.filter(locations=[34.6323360532, 16.3478913436, 55.6666593769, 32.161008816])
 
 
 
