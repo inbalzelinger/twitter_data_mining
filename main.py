@@ -4,33 +4,29 @@ import requests
 from elasticsearch import Elasticsearch
 from tweepy import OAuthHandler
 from tweepy import Stream
-
 import Menu
-from twitter_stream_listener import twitter_stream_listener
+from stream_api import StreamApi
 from config_parser import Config_parser
-from elastic_search import Elastic_search
-from twitter_mining import Twitter
-from Menu import menu
-from elasticsearch_dsl import Search
 
-es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
-config_parser = Config_parser(r'configuration.conf')
-consumer_key = config_parser.twitter_for_developers_config['API_key']
-consumer_secret = config_parser.twitter_for_developers_config['API_secret_key']
-access_token = config_parser.twitter_for_developers_config['Access_token']
-access_token_secret = config_parser.twitter_for_developers_config['Access_token_secret']
+
+
+
 
 def main():
-    menu=Menu.menu()
-    #key_words=menu.key_words()
-    location=menu.location()
-    quary_filters=menu.aggregate_by()
-
-    #create stream listener
-    listener = twitter_stream_listener(es)
+    config_parser = Config_parser(r'configuration\configuration.conf')
+    consumer_key = config_parser.twitter_for_developers_config['API_key']
+    consumer_secret = config_parser.twitter_for_developers_config['API_secret_key']
+    access_token = config_parser.twitter_for_developers_config['Access_token']
+    access_token_secret = config_parser.twitter_for_developers_config['Access_token_secret']
     auth = OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
-    api = tweepy.API(auth)
+    tweepy.API(auth)
+    menu=Menu.menu()
+    location=menu.location()
+    quary_filters=menu.aggregate_by()
+    es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+    es.indices.create(index='twitter_index', ignore=400)
+    listener = StreamApi(es)
     stream = Stream(auth=auth, listener=listener, timeout=5)
     stream.filter(locations=location)
     createQuery(quary_filters,index)
