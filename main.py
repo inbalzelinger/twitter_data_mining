@@ -1,14 +1,11 @@
 import tweepy
-import json
-import requests
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, exceptions
 from tweepy import OAuthHandler
 from tweepy import Stream
 import Menu
 from stream_api import StreamApi
 from config_parser import Config_parser
 from elasticsearch_dsl import Search
-
 
 
 
@@ -27,8 +24,11 @@ def main():
     es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
     es.indices.create(index='twitter_index', ignore=400)
     listener = StreamApi(es)
-    stream = Stream(auth=auth, listener=listener, timeout=5)
-    stream.filter(locations=location)
+    stream = Stream(auth=auth, listener=listener, timeout=2)
+    try:
+        stream.filter(locations=location)
+    except Exception as e:
+        print(e)
     createAggregation(quary_filters,es)
 
 
