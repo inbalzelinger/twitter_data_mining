@@ -10,10 +10,9 @@ class menu:
         return lst
 
     def location(self):
-        user_input = input("chose tweets country:\n EG for Egypt\nSA for Saudi Arabia\nLB for Lebanon\n")
+        user_input = input("chose tweets country:\nEG for Egypt\nSA for Saudi Arabia\nLB for Lebanon\n")
         return country_bounding_box.country_bounding_boxes.get(user_input)[1]
 
     def aggregate_by (self):
         user_input = input("aggregate by:\n")
-        #lst=[user_input]
         return user_input

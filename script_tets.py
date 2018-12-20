@@ -10,8 +10,9 @@ from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
 from elasticsearch_dsl import aggs
 from Menu import menu
+import ArabiziCheck
 
-config_parser = Config_parser(r'configuration\configuration.conf')
+config_parser = Config_parser(r'configuration.conf')
 consumer_key = config_parser.twitter_for_developers_config['API_key']
 consumer_secret = config_parser.twitter_for_developers_config['API_secret_key']
 access_token = config_parser.twitter_for_developers_config['Access_token']
@@ -22,7 +23,7 @@ api = tweepy.API(auth)
 places = api.geo_search(query="USA", granularity="country")
 place_id = places[0].id
 
-
+"""
 es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
 
 es.indices.create(index='twitter_index', ignore=400)
@@ -63,11 +64,11 @@ s = Search(using=es, index="twitter_index", doc_type="twitter")
 s.aggs.bucket('by_lang', 'terms', field='lang')
 t=s.execute()
 
-"""
+
 print(t.aggregations.by_location.buckets)
 for item in t.aggregations.by_location.buckets:
     print(item.doc_count)
-"""
+
 
 print(t.aggregations.by_lang.buckets)
 for item in t.aggregations.by_lang.buckets:
@@ -78,3 +79,8 @@ print("%d tweets found" % res['hits']['total'])
 
 for doc in res['hits']['hits']:
    print(doc)
+   """
+arabiziChecker=ArabiziCheck.arabiziChecker()
+if arabiziChecker.checkTweet("la2 la2 la2 la2 la2 la2 la2!! la2"):
+    print("arabiz\n")
+print("not arabizi\n")
