@@ -23,12 +23,15 @@ def main():
     menu = Menu.menu()
     location = menu.location()
     quary_filters = menu.aggregate_by()
+    keyWords=menu.key_words()
     es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
     es.indices.create(index='twitter_index', ignore=400)
     listener = StreamApi(es)
     stream = Stream(auth=auth, listener=listener, timeout=2)
     try:
-        stream.filter(locations=location)
+        #stream.filter(locations=location)
+        print(keyWords)
+        stream.filter(track=keyWords)
     except Exception as e:
         print(e)
 
@@ -56,16 +59,20 @@ def createAggregation(field,es):
 
 def check_arabizi_from_und(es,arabiziChecker):
 
-    res = es.search(index='twitter_index', doc_type="twitter", body={"query": {"match": {"lang": 'und'}}})
+    res = es.search(index='twitter_index', doc_type="twitter", body={"query": {"match": {"lang": 'ar'}}})
     print("%d 'und' tweets found" % res['hits']['total'])
     i=0
+    count=0;
     for tweet in res['hits']['hits']:
         i+=1
         print("%(text)s" % tweet["_source"])
         if arabiziChecker.checkTweet(tweet["_source"]['text']):
-            print("arabiz\n")
-        print("not arabizi\n")
+            print("arabizi\n")
+            count+=1
+        else:
+            print("not arabizi\n")
     print(i)
+    print(count)
 
 
 
