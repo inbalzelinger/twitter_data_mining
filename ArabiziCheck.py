@@ -14,13 +14,13 @@ class arabiziChecker:
         d=self.getDict()
         splitToWords=tweet.split(' ')
         for word in splitToWords:
-            print(word)
+            # print(word)
             if word in d.keys():
                 d[word]+=1
-        print(d)
+        # print(d)
         sum=0
         for val in d.values():
-            print(val)
+            # print(val)
             sum=sum+val
-        print(sum)
-        return sum>5
+        print("sum of arabizi words = {}".format(sum))
+        return sum>0
