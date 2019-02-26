@@ -11,7 +11,6 @@ import ArabiziCheck
 
 
 def main():
-
     config_parser = Config_parser('configuration.conf')
     consumer_key = config_parser.twitter_for_developers_config['API_key']
     consumer_secret = config_parser.twitter_for_developers_config['API_secret_key']
@@ -24,15 +23,13 @@ def main():
     location = menu.location()
     quary_filters = menu.aggregate_by()
     es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
-    es.indices.create(index='twitter_index', ignore=400)
+    es.indices.create(index='twitter_index7', ignore=1)
     listener = StreamApi(es)
     stream = Stream(auth=auth, listener=listener, timeout=2)
     try:
         stream.filter(locations=location)
     except Exception as e:
         print(e)
-
-
     createAggregation(quary_filters,es)
     arabiziChecker = ArabiziCheck.arabiziChecker()
     check_arabizi_from_und(es,arabiziChecker)
@@ -45,27 +42,27 @@ def createQuery(quary_filters, es):
         print("%s) %s" % (doc['_id'], doc['_source']['content']))
 
 def createAggregation(field,es):
+    ##TODO enable the field first.
+    #es.put_mapping(doc_type='twitter_index', body='properties: {lang: {type: text,fielddata: true}}')
     s = Search(using=es, index="twitter_index", doc_type="twitter")
     s.aggs.bucket('by_lang', 'terms', field=field)
     t = s.execute()
-
     print(t.aggregations.by_lang.buckets)
     for item in t.aggregations.by_lang.buckets:
         print(item.doc_count)
 
 
-def check_arabizi_from_und(es,arabiziChecker):
-
-    res = es.search(index='twitter_index', doc_type="twitter", body={"query": {"match": {"lang": 'und'}}})
-    print("%d 'und' tweets found" % res['hits']['total'])
+def check_arabizi_from_und(es,arabiziChecker, language = 'en'):
+    res = es.search(index='twitter_index', doc_type="twitter", body={"size":'5000',"query": {"match": {"lang": 'en'}}})
+    print("{0} {1} tweets found".format(res['hits']['total'], language))
     i=0
     for tweet in res['hits']['hits']:
         i+=1
         print("%(text)s" % tweet["_source"])
         if arabiziChecker.checkTweet(tweet["_source"]['text']):
-            print("arabiz\n")
-        print("not arabizi\n")
-    print(i)
+            print("arabizi\n")
+        #print("not arabizi\n")
+    #print(i)
 
 
 
