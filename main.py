@@ -12,7 +12,7 @@ import ArabiziCheck
 
 
 def main():
-    conf_dictionary = read_configuration_file('configuration.conf')
+    conf_dictionary = read_configuration_file(r'configuration/configuration.conf')
     auth = OAuthHandler(conf_dictionary['consumer_key'], conf_dictionary['consumer_secret'])
     auth.set_access_token(conf_dictionary['access_token'], conf_dictionary['access_token_secret'])
     tweepy.API(auth)
