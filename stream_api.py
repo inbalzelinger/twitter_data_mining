@@ -4,7 +4,7 @@ from elasticsearch import Elasticsearch
 from tweepy import OAuthHandler
 from config_parser import Config_parser
 
-config_parser = Config_parser(r'configuration.conf')
+config_parser = Config_parser(r'configuration\configuration.conf')
 consumer_key = config_parser.twitter_for_developers_config['API_key']
 consumer_secret = config_parser.twitter_for_developers_config['API_secret_key']
 access_token = config_parser.twitter_for_developers_config['Access_token']
