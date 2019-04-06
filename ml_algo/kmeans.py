@@ -1,56 +1,48 @@
 #“coordinates” attributes is formatted as [LONGITUDE, latitude],
 #“geo” attribute is formatted as [latitude, LONGITUDE].
 
-import matplotlib.pyplot as plt
-import seaborn as sns; sns.set()  # for plot styling
+import seaborn as sns;
+sns.set()  # for plot styling
+from sklearn.cluster import KMeans, DBSCAN
 import numpy as np
-from sklearn.datasets.samples_generator import make_blobs
-from sklearn.cluster import KMeans
+
+MAX_RESULTS = 200000
+INDEX_NAME = "twitter_index"
+DOC_TYPE = "twitter"
 
 
 
-def kmeans_algo(es, k, country_bounding):
-    X, y_true = make_blobs(n_samples=300, centers=4,
-                           cluster_std=0.60, random_state=0)
-    plt.scatter(X[:, 0], X[:, 1], s=50)
-    kmeans = KMeans(n_clusters=4)
-    kmeans.fit(X)
-    y_kmeans = kmeans.predict(X)
-    plt.scatter(X[:, 0], X[:, 1], c=y_kmeans, s=50, cmap='viridis')
 
-    centers = kmeans.cluster_centers_
-    plt.scatter(centers[:, 0], centers[:, 1], c='black', s=200, alpha=0.5);
+def kmeans_algo(es, k):
+    points_arr = create_points_dict(es)
+    print(points_arr)
+    kmeans = KMeans(n_clusters=6, random_state=0).fit(points_arr)
+    print(kmeans.cluster_centers_)
 
-
-    # coordinate_dict = create_points_dict(es)
-    # random_points = pick_up_k_random_points(k, country_bounding, coordinate_dict)
-    # print(random_points)
 
 
 def create_points_dict(es):
     coordinate_dict = {}
     i = 0
-    res = es.search(index='twitter_index', doc_type="twitter", body={"size":'10000',"query": {"match_all":{}}})
+    es.indices.put_settings(index=INDEX_NAME,body={"index": {"max_result_window": MAX_RESULTS}})
+    res = es.search(index=INDEX_NAME, doc_type=DOC_TYPE,
+                    body={"size":MAX_RESULTS,"query": {"match_all":{}}})
     for tweet in res['hits']['hits']:
         if tweet["_source"] is not None:
             if 'coordinates' in tweet["_source"]:
                 if tweet["_source"]['coordinates'] is not None:
                     i += 1
-                    print(tweet["_source"]['coordinates'])
                     coordinate_dict[tweet["_source"]["id_str"]] = tweet["_source"]['coordinates']
+    list_of_points = []
+    for key, val in coordinate_dict.items():
+        list_of_points.append(val['coordinates'])
+    point_arr = np.array([])
+    print(len(point_arr))
+    for point in list_of_points:
+        point_arr = np.append(point_arr, point)
+    A = np.array([[e[0], e[1]] for e in list_of_points])
+    return A
 
-    #print(i)
-    #print(coordinate_dict)
-    return coordinate_dict
-
-def pick_up_k_random_points(k, country_bounding, coordinate_dict):
-    k_points_arry = np.arry()
-    k_dict = {key: coordinate_dict[key] for key in list(coordinate_dict)[:k]}
-    #print(k_dict)
-    for key, val in k_dict.items():
-        k_points_arry.append(val['coordinates'])
-    #print(k_points_arry)
-    return k_points_arry
 
 
 
