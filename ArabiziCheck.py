@@ -14,6 +14,8 @@ class arabiziChecker:
 
     def checkTweet(self,tweet):
         d = self.getDict()
+        if "" in d.keys():
+            d.__delitem__("")
         splitToWords=tweet.split(' ')
         with open("configuration\output.txt", 'a') as file:
             for word in splitToWords:
@@ -21,8 +23,8 @@ class arabiziChecker:
                 #file.write("word = {}".format(word))
                 #print(word)
                 if word in d.keys():
+                    print('the word is: {}'.format(word))
                     d[word]+=1
-                    print('arabizi word: {}'.format(word))
         #print(d)
         sum = 0
         for val in d.values():
