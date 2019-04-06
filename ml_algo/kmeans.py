@@ -21,6 +21,7 @@ def kmeans_algo(es, k):
 
 
 
+
 def create_points_dict(es):
     coordinate_dict = {}
     i = 0

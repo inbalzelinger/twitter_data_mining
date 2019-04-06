@@ -2,7 +2,7 @@ class arabiziChecker:
 
     def __init__(self):
         self.arabizi_word_count = {}
-        with open("configuration\elda_dict.txt") as f:
+        with open("configuration\elda_dict.txt", encoding='UTF-8') as f:
             for line in f:
                 l=line.replace('\n','')
                 self.arabizi_word_count[l] = 0

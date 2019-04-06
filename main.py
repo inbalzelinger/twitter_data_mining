@@ -8,6 +8,7 @@ from stream_api import StreamApi
 from config_parser import Config_parser
 from elasticsearch_dsl import Search
 import ArabiziCheck
+from ml_algo import DBSCAN
 
 MAX_RESULTS = 200000
 INDEX_NAME = "twitter_index"
@@ -24,7 +25,7 @@ def main():
     quary_filters = menu.aggregate_by()
     es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
     es.indices.create(index= INDEX_NAME, ignore=400)
-    es.indices.create(index= "arabizi_index", ignore=400)
+    # kmeans_algo(es, 7, location)
     listener = StreamApi(es)
     stream = Stream(auth=auth, listener=listener, timeout=TWITTER_TIMEOUT)
     try:
@@ -32,9 +33,14 @@ def main():
     except Exception as e:
         print(e)
     createAggregation(quary_filters,es)
-    kmeans_algo(es, 6)
+    es.indices.create(index='arabizi_tweets_index', ignore=400)
+    #create_user_locartion_dict(es)
     arabiziChecker = ArabiziCheck.arabiziChecker()
     check_arabizi_from_und(es,arabiziChecker)
+    #corArray=DBSCAN.create_points_dict(es)
+    #DBSCAN.cluster(corArray)
+
+
 
 
 def createQuery(quary_filters, es, index_name = INDEX_NAME):
@@ -70,6 +76,11 @@ def check_arabizi_from_und(es,arabiziChecker, language = 'en'):
             if 'text' in tweet["_source"]:
                 if arabiziChecker.checkTweet(tweet["_source"]['text']):
                     arabizi_tweets.append(tweet["_source"]['text'])
+                    es.index(index="arabizi_tweets_index",
+                             doc_type="twitter",
+                             body=tweet["_source"],
+                             ignore=400)
+                    es.delete(index=INDEX_NAME, doc_type=DOC_TYPE, id=tweet["_id"])
                     print("arabizi\n")
                     sum_of_arabizi += 1
     print("sum_of_arabizi = {}".format(sum_of_arabizi))
