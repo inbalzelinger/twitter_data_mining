@@ -15,7 +15,7 @@ class arabiziChecker:
     def checkTweet(self,tweet):
         d = self.getDict()
         splitToWords=tweet.split(' ')
-        with open("output.txt", 'a') as file:
+        with open("configuration\output.txt", 'a') as file:
             for word in splitToWords:
                 #print("word is: {}".format(word))
                 #file.write("word = {}".format(word))
