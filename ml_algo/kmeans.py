@@ -2,8 +2,11 @@
 #“geo” attribute is formatted as [latitude, LONGITUDE].
 
 import seaborn as sns;
+from sklearn.cluster import KMeans
+
 sns.set()  # for plot styling
-from sklearn.cluster import KMeans, DBSCAN
+
+
 import numpy as np
 
 MAX_RESULTS = 200000

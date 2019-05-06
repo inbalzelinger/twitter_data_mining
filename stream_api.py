@@ -28,7 +28,7 @@ class StreamApi(tweepy.StreamListener):
         print("{} {}".format(status.author.screen_name, status.created_at))
         json_data = status._json
         print(json_data['text'])
-        es.index(index="twitter_index",
+        es.index(index="hadar2",
                  doc_type="twitter",
                  body=json_data,
                  ignore=400)

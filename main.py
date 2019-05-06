@@ -9,11 +9,11 @@ from config_parser import Config_parser
 from elasticsearch_dsl import Search
 import ArabiziCheck
 from ml_algo import DBSCAN
-
+import compression
 MAX_RESULTS = 200000
 INDEX_NAME = "twitter_index"
 DOC_TYPE = "twitter"
-TWITTER_TIMEOUT = 1
+TWITTER_TIMEOUT = 0.5
 
 def main():
     conf_dictionary = read_configuration_file(r'configuration/configuration.conf')
@@ -24,8 +24,9 @@ def main():
     location = menu.location()
     quary_filters = menu.aggregate_by()
     es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
-    es.indices.create(index= INDEX_NAME, ignore=400)
-    # kmeans_algo(es, 7, location)
+    #es.indices.create(index=INDEX_NAME, ignore=400)
+    es.indices.create(index="hadar2", ignore=400)
+    #kmeans_algo(es, 7, location)
     listener = StreamApi(es)
     stream = Stream(auth=auth, listener=listener, timeout=TWITTER_TIMEOUT)
     try:
@@ -34,11 +35,13 @@ def main():
         print(e)
     createAggregation(quary_filters,es)
     es.indices.create(index='arabizi_tweets_index', ignore=400)
-    #create_user_locartion_dict(es)
+    create_user_locartion_dict(es)
     arabiziChecker = ArabiziCheck.arabiziChecker()
     check_arabizi_from_und(es,arabiziChecker)
-    #corArray=DBSCAN.create_points_dict(es)
-    #DBSCAN.cluster(corArray)
+    corArray,coordinate_dict=DBSCAN.create_points_dict(es)
+    DBScan_clusters_dict=DBSCAN.cluster(corArray,coordinate_dict)
+    #coordinates_compressed_dict=compression.compressTweetsWithCoordinates(es)
+    compression.noCoordinatesClustering(es,DBScan_clusters_dict)
 
 
 
